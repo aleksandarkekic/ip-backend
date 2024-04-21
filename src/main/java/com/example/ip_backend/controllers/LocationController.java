@@ -5,11 +5,12 @@ import com.example.ip_backend.models.dto.Location;
 import com.example.ip_backend.models.dto.SingleLocation;
 import com.example.ip_backend.models.requests.LocationRequest;
 import com.example.ip_backend.services.LocationService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@Slf4j
 @RestController
 @CrossOrigin("http://localhost:3000")
 @RequestMapping("/locations")
@@ -37,7 +38,7 @@ public class LocationController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable     Integer id) throws NotFoundException {
+    public void delete(@PathVariable Integer id) throws NotFoundException {
         locationService.delete(id);
     }
     @GetMapping("distinct-names")

@@ -35,7 +35,7 @@ public class SecurityConfig  extends SecurityConfigurerAdapter<DefaultSecurityFi
         this.customUserDetailsService = customUserDetailsService;
     }
 
-    //ovde cemo konfifurisati nas security filter chain
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -52,19 +52,21 @@ public class SecurityConfig  extends SecurityConfigurerAdapter<DefaultSecurityFi
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/locations/**").permitAll()
                 .requestMatchers("/users/**").permitAll()
-                .requestMatchers("/comments/**").permitAll()
-                .requestMatchers("/photos/**").permitAll()
-                .requestMatchers("/messages/**").permitAll()
-                .requestMatchers("/programs/**").permitAll()
+                .requestMatchers("/comments/**").hasAnyAuthority(SecurityConsts.USER, SecurityConsts.ADMIN)
+                .requestMatchers(HttpMethod.GET,"/photos/**").permitAll()
+                .requestMatchers(HttpMethod.POST,"/photos/**").hasAnyAuthority(SecurityConsts.USER, SecurityConsts.ADMIN)
+                .requestMatchers("/messages/**").hasAnyAuthority(SecurityConsts.USER, SecurityConsts.ADMIN)
+                .requestMatchers(HttpMethod.GET,"/programs/**").permitAll()
+                .requestMatchers("/programs/**").hasAnyAuthority(SecurityConsts.USER, SecurityConsts.ADMIN)
                 .requestMatchers("/categories/**").permitAll()
                 .requestMatchers("/attributes/**").permitAll()
-                .requestMatchers("/participate/**").permitAll()
-                .requestMatchers("/diaries/**").permitAll()
+                .requestMatchers("/participate/**").hasAnyAuthority(SecurityConsts.USER, SecurityConsts.ADMIN)
+                .requestMatchers("/diaries/**").hasAnyAuthority(SecurityConsts.USER, SecurityConsts.ADMIN)
                 .and()
                 .httpBasic();
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
-        //ovaj build ce ce bildati citav ovaj chain za nas
+
     }
 //    @Bean
 //    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

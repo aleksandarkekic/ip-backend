@@ -64,10 +64,8 @@ public class ScheduledEmailSend extends TimerTask {
         List<User> users= null;
         try {
             users = userService.findAll(User.class);
-        } catch (NotFoundException e) {
-            log.error("Neka porka {}", e);
-        }catch (Exception e){
-            System.out.println(e);
+        } catch (Exception e){
+            log.error("Izuzetak: ", e);
         }
         for(User user:users){
             if(userService.isSubscribed(user.getId())) {
@@ -84,6 +82,8 @@ public class ScheduledEmailSend extends TimerTask {
     @Bean
     public Timer scheduledTaskTimer() {
         Timer timer = new Timer();
+
+
         Calendar date = Calendar.getInstance();
         date.set(Calendar.HOUR_OF_DAY, 18);
         date.set(Calendar.MINUTE, 42);

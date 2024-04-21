@@ -7,6 +7,7 @@ import com.example.ip_backend.models.requests.ProgramRequest;
 import com.example.ip_backend.models.requests.ProgramRequestFront;
 import com.example.ip_backend.security.SecurityConsts;
 import com.example.ip_backend.services.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -19,7 +20,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
+@Slf4j
 @RestController
 @CrossOrigin("http://localhost:3000")
 @RequestMapping("/programs")
@@ -52,13 +53,13 @@ public class ProgramController {
     @GetMapping("/paginated")
     public Page<Program> findAllPaginated(Pageable page){
 
-
         return programService.findAllPaginated(page);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Program insert(@RequestBody ProgramRequestFront programRequestFront) throws NotFoundException {
+    public Program insert(@RequestBody ProgramRequestFront programRequestFront)  {
+        try{
         ProgramRequest programRequest=new ProgramRequest();
         Integer locationId=null;
         if (!locationService.existsByName(programRequestFront.getLocationName())){
@@ -82,6 +83,10 @@ public class ProgramController {
         programRequest.setContact(programRequestFront.getContact());
         programRequest.setCoach(programRequestFront.getCoach());
         return programService.insert(programRequest, Program.class);
+        }catch (Exception e){
+            log.error("Exception: "+e);
+            return null;
+        }
     }
 
     @GetMapping("/price-between")
@@ -134,39 +139,48 @@ public class ProgramController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) throws NotFoundException {
-        Program program=programService.findById(id,Program.class);
-        System.out.println(program.getUserUsername()+" "+userService.getCurrentUserInfo().getUsername());
-        if(Objects.equals(program.getUserUsername(),userService.getCurrentUserInfo().getUsername()) || userService.getCurrentUser().getRole().equals(SecurityConsts.ADMIN))
-            programService.delete(id);
+    public void delete(@PathVariable Integer id) {
+        try {
+            Program program = programService.findById(id, Program.class);
+            System.out.println(program.getUserUsername() + " " + userService.getCurrentUserInfo().getUsername());
+            if (Objects.equals(program.getUserUsername(), userService.getCurrentUserInfo().getUsername()) || userService.getCurrentUser().getRole().equals(SecurityConsts.ADMIN))
+                programService.delete(id);
+        }catch (Exception e){
+            log.error("Exception: "+e);
+        }
     }
     @PutMapping("/deactivate/{id}")
-    public ResponseEntity<String> deactivate(@PathVariable Integer id) throws NotFoundException {
-        Program program=programService.findById(id,Program.class);
-        ProgramRequest programRequest=new ProgramRequest();
-        programRequest.setName(program.getName());
-        programRequest.setDescription(program.getDescription());
-        programRequest.setPrice(program.getPrice());
-        programRequest.setDifficulty(program.getDifficulty());
-        programRequest.setDuration(program.getDuration());
-        programRequest.setActive(false);
-        programRequest.setCategoryId(categoryService.findIdByName(program.getCategoryName()));
-        programRequest.setAttributeId(attributeService.findIdByName(program.getAttributeName()));
-        programRequest.setLocationId(locationService.findIdByName(program.getLocationName()));
-        programRequest.setUserId(userService.findIdByUsername(program.getUserUsername()));
-        programRequest.setCoach(program.getCoach());
-        programRequest.setContact(program.getContact());
-        programRequest.setCreatedTime(program.getCreatedTime());
-        if (Objects.equals(programRequest.getUserId(), userService.getCurrentId())){
-            programService.update(id,programRequest,Program.class);
-            return new ResponseEntity<>("successfully!", HttpStatus.OK);
-        }else {
-            return new ResponseEntity<>("not successfully!", HttpStatus.NOT_FOUND);
+    public ResponseEntity<String> deactivate(@PathVariable Integer id)  {
+        try {
+            Program program = programService.findById(id, Program.class);
+            ProgramRequest programRequest = new ProgramRequest();
+            programRequest.setName(program.getName());
+            programRequest.setDescription(program.getDescription());
+            programRequest.setPrice(program.getPrice());
+            programRequest.setDifficulty(program.getDifficulty());
+            programRequest.setDuration(program.getDuration());
+            programRequest.setActive(false);
+            programRequest.setCategoryId(categoryService.findIdByName(program.getCategoryName()));
+            programRequest.setAttributeId(attributeService.findIdByName(program.getAttributeName()));
+            programRequest.setLocationId(locationService.findIdByName(program.getLocationName()));
+            programRequest.setUserId(userService.findIdByUsername(program.getUserUsername()));
+            programRequest.setCoach(program.getCoach());
+            programRequest.setContact(program.getContact());
+            programRequest.setCreatedTime(program.getCreatedTime());
+            if (Objects.equals(programRequest.getUserId(), userService.getCurrentId())) {
+                programService.update(id, programRequest, Program.class);
+                return new ResponseEntity<>("successfully!", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("not successfully!", HttpStatus.NOT_FOUND);
+            }
+        }catch (Exception e){
+            log.error("Exception: "+e);
+            return null;
         }
-
     }
     @PutMapping("/activate/{id}")
-    public ResponseEntity<String> activate(@PathVariable Integer id) throws NotFoundException {
+    public ResponseEntity<String> activate(@PathVariable Integer id)  {
+        try {
         Program program=programService.findById(id,Program.class);
         ProgramRequest programRequest=new ProgramRequest();
         programRequest.setName(program.getName());
@@ -188,7 +202,10 @@ public class ProgramController {
         }else {
             return new ResponseEntity<>("not successfully!", HttpStatus.NOT_FOUND);
         }
-
+        }catch (Exception e){
+            log.error("Exception: "+e);
+            return null;
+        }
     }
 
 }
